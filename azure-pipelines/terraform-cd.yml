@@ -1,0 +1,67 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  terraformVersion: '1.9.8'
+  azureServiceConnection: 'REPLACE_WITH_AZURE_SERVICE_CONNECTION'
+
+stages:
+  - stage: Plan_Dev
+    displayName: Terraform Plan - Dev
+    jobs:
+      - job: Plan
+        steps:
+          - task: TerraformInstaller@1
+            displayName: Install Terraform
+            inputs:
+              terraformVersion: '$(terraformVersion)'
+
+          - task: AzureCLI@2
+            displayName: Terraform Init and Plan
+            inputs:
+              azureSubscription: '$(azureServiceConnection)'
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                set -euo pipefail
+                cd "$(System.DefaultWorkingDirectory)/environments/dev"
+                terraform init
+                terraform validate
+                terraform plan -out=tfplan
+
+  - stage: Apply_Dev
+    displayName: Terraform Apply - Dev
+    dependsOn: Plan_Dev
+    condition: succeeded()
+    jobs:
+      - deployment: Apply
+        environment: terraform-dev
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: TerraformInstaller@1
+                  displayName: Install Terraform
+                  inputs:
+                    terraformVersion: '$(terraformVersion)'
+
+                - task: AzureCLI@2
+                  displayName: Terraform Apply
+                  inputs:
+                    azureSubscription: '$(azureServiceConnection)'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      set -euo pipefail
+                      cd "$(System.DefaultWorkingDirectory)/environments/dev"
+                      terraform init
+                      terraform apply -auto-approve
+
+  # Promote the same validated change to QA/UAT/Prod only after
+  # environment-specific configuration and Azure DevOps approvals are configured.
+  # Production should use a protected environment with manual approval/checks.
