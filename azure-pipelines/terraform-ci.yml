@@ -1,0 +1,27 @@
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  terraformVersion: '1.9.8'
+  workingDirectory: '$(System.DefaultWorkingDirectory)/environments/dev'
+
+steps:
+  - task: TerraformInstaller@1
+    displayName: Install Terraform
+    inputs:
+      terraformVersion: '$(terraformVersion)'
+
+  - bash: |
+      set -euo pipefail
+      cd "$(workingDirectory)"
+      terraform fmt -check -recursive
+      terraform init -backend=false
+      terraform validate
+    displayName: Terraform format and validate
