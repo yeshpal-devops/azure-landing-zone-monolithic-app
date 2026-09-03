@@ -1,4 +1,6 @@
 terraform {
+  required_version = ">= 1.9.0"
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -16,5 +18,6 @@ terraform {
 
 provider "azurerm" {
   features {}
-  subscription_id = "d45d303f-5dbd-4fbf-9adb-39c652a0547d"
+  # Authenticate through Azure CLI or the Azure DevOps service connection.
+  # subscription_id is intentionally not hard-coded here.
 }
