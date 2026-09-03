@@ -1,4 +1,6 @@
 terraform {
+  required_version = ">= 1.9.0"
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -7,14 +9,14 @@ terraform {
   }
 
   backend "azurerm" {
-    resource_group_name  = "dev-infra"
-    storage_account_name = "devinfrastorage042026"
-    container_name       = "devcontainer"
-    key                  = "terraformdev.tfstate"
+    resource_group_name  = "uat-infra"
+    storage_account_name = "uatinfrastorage042026"
+    container_name       = "uatcontainer"
+    key                  = "terraformuat.tfstate"
   }
 }
 
 provider "azurerm" {
   features {}
-  subscription_id = "d45d303f-5dbd-4fbf-9adb-39c652a0547d"
+  # Authenticate through Azure CLI or the Azure DevOps service connection.
 }
