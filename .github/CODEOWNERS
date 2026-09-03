@@ -1,0 +1,8 @@
+# Default repository owner
+* @yeshpal-devops
+
+# Terraform and pipeline changes
+*.tf @yeshpal-devops
+*.tfvars @yeshpal-devops
+*.yml @yeshpal-devops
+*.yaml @yeshpal-devops
