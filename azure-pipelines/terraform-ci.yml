@@ -25,3 +25,15 @@ steps:
       terraform init -backend=false
       terraform validate
     displayName: Terraform format and validate
+
+  - bash: |
+      set -euo pipefail
+      python3 -m pip install --disable-pip-version-check --no-cache-dir checkov
+      checkov -d "$(System.DefaultWorkingDirectory)" --framework terraform --compact --quiet
+    displayName: IaC security scan (Checkov)
+
+  - bash: |
+      set -euo pipefail
+      cd "$(workingDirectory)"
+      terraform plan -input=false -lock=false -out=tfplan
+    displayName: Terraform plan (CI review artifact)
